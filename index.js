@@ -4,7 +4,13 @@ var camera, scene, renderer;
 			lon = 90, onMouseDownLon = 0,
 			lat = 0, onMouseDownLat = 0,
 			phi = 0, theta = 0,
+			onPointerDownPointerX = 0, onPointerDownPointerY = 0,
+			onPointerDownLon = 0, onPointerDownLat = 0
 			target = new THREE.Vector3();
+			//lon是x的偏移(纬度)
+			//lat是y的偏移(经度)
+			//onPointerDownPointerX, onPointerDownPointerY是mousedown的时候的坐标
+			// onPointerDownLon,onPointerDownLat 是mousedown的时候的经纬度
 
 			init();
 			animate();
@@ -14,15 +20,21 @@ var camera, scene, renderer;
 				var container, mesh;
 
 				container = document.getElementById( 'container' );
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 10, 1100 );
 
-				camera = new THREE.PerspectiveCamera( 100, 100 / 100, 200, 1100 );
 
 				scene = new THREE.Scene();
 
-
 				mesh = new THREE.Mesh( new THREE.SphereGeometry( 300, 32, 32), loadTexture('static/textures/full_view.jpg') );
-        mesh.scale.x = -1;
+				mesh.scale.x = -1;
+
 				scene.add( mesh );
+				var light = new THREE.AmbientLight(0xffffff);
+				scene.add( light );
+
+
+				// camera.position = new THREE.Vector3(0,0,0)
+				// camera.lookAt(new THREE.Vector3(1,1,1))
 
 				// for ( var i = 0, l = mesh.geometry.vertices.length; i < l; i ++ ) {
 
@@ -34,9 +46,12 @@ var camera, scene, renderer;
 				// }
 
 				renderer = new THREE.WebGLRenderer();
+				// console.log(window.devicePixelRatio)
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				container.appendChild( renderer.domElement );
+
+				renderer.render( scene, camera );
 
 				document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
@@ -47,8 +62,10 @@ var camera, scene, renderer;
 				document.addEventListener( 'touchmove', onDocumentTouchMove, false );
 
 				//
-        // drawAxes(scene);
+
+        drawAxes(scene);
 				// window.addEventListener( 'resize', onWindowResize, false );
+
 
 			}
 
@@ -65,7 +82,7 @@ var camera, scene, renderer;
 
         // var texture = new THREE.Texture( texture_placeholder );
         var texture = new THREE.ImageUtils.loadTexture(path)
-        var material = new THREE.MeshBasicMaterial( { map: texture, overdraw: 0.5 } );
+        var material = new THREE.MeshBasicMaterial( { map: texture } );
 
 				return material;
 
@@ -84,6 +101,11 @@ var camera, scene, renderer;
 				onPointerDownLat = lat;
 
 			}
+
+			// onPointerDownPointerX，onPointerDownPointerY  鼠标点击的位置
+			// lon = 90, onMouseDownLon = 0,
+			// lat = 0, onMouseDownLat = 0,
+			// phi = 0, theta = 0,
 
 			function onDocumentMouseMove( event ) {
 
@@ -138,7 +160,7 @@ var camera, scene, renderer;
 			}
 
 			function animate() {
-
+				// console.log(1)
 				requestAnimationFrame( animate );
 				update();
 
@@ -152,18 +174,28 @@ var camera, scene, renderer;
 
 				}
 
+				// onMouseDownMouseX = 0, onMouseDownMouseY = 0,
+				// lon = 90, onMouseDownLon = 0,
+				// lat = 0, onMouseDownLat = 0,
+				// phi = 0, theta = 0,
+
+
 				lat = Math.max( - 85, Math.min( 85, lat ) );
 				phi = THREE.Math.degToRad( 90 - lat );
-				theta = THREE.Math.degToRad( lon );
+				theta = THREE.Math.degToRad( lon );//就是lon转成弧度
 
-				target.x = 500 * Math.sin( phi ) * Math.cos( theta );
-				target.y = 500 * Math.cos( phi );
-				target.z = 500 * Math.sin( phi ) * Math.sin( theta );
+				// target.x = 500 * Math.sin( phi ) * Math.cos( theta );
+				// target.y = 500 * Math.cos( phi );
+				// target.z = 500 * Math.sin( phi ) * Math.sin( theta );
+				target.x = 500 * Math.cos(theta)
+				target.y = 500 * Math.cos(phi)
+				target.z = 500 * Math.sin( theta )
         //将target的向量给camera，然后让camera反向
 				// camera.position.copy( target ).negate();
         // camera.position.copy( target )
-        // camera.position = new THREE.Vector3(0,0,0)
-        camera.lookAt( target );
+        camera.position = new THREE.Vector3(0,0,0)
+				camera.lookAt( target )
+
 
         // camera.lookAt(new THREE.Vector3(0,0,0))
 
