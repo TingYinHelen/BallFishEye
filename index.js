@@ -1,16 +1,58 @@
+// const scene = new THREE.Scene()
+// const renderer = new THREE.WebGLRenderer()
+// renderer.setSize(window.innerWidth, window.innerHeight)
+// const container = document.getElementById('container')
+// container.appendChild(renderer.domElement)
+
+// const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 1, 400)
+// camera.position.set(0,0,-200)
+
+// scene.add(camera)
+
+// const cube = new THREE.SphereGeometry(50, 32, 32)
+// const texture = new THREE.ImageUtils.loadTexture('static/textures/full_view.jpg', {}, ()=>{
+// 	renderer.render(scene, camera)
+// })
+// const material = new THREE.MeshBasicMaterial({map: texture})
+// console.log(material)
+// const material = new THREE.MeshLambertMaterial({color: 0xffffff})
+//
+// const mesh = new THREE.Mesh(cube, material)
+// mesh.scale.x = -1
+
+// const light = new THREE.PointLight(0xff0000, 30, 400)
+// const light = new THREE.AmbientLight(0xffffff)
+// light.position.set(0, 0, -10)
+// scene.add(light)
+
+// mesh.position.set(0,0,50)
+// scene.add(mesh)
+// camera.lookAt(mesh.position)
+
+// renderer.render(scene, camera)
+// update()
+// function update(){
+
+// }
+
+
+
+
+
+
 var camera, scene, renderer;
-			var isUserInteracting = false,
+			var isUserInteracting = false
 			onMouseDownMouseX = 0, onMouseDownMouseY = 0,
 			lon = 90, onMouseDownLon = 0,
 			lat = 0, onMouseDownLat = 0,
 			phi = 0, theta = 0,
 			onPointerDownPointerX = 0, onPointerDownPointerY = 0,
 			onPointerDownLon = 0, onPointerDownLat = 0
-			target = new THREE.Vector3();
-			//lon是x的偏移(纬度)
-			//lat是y的偏移(经度)
-			//onPointerDownPointerX, onPointerDownPointerY是mousedown的时候的坐标
-			// onPointerDownLon,onPointerDownLat 是mousedown的时候的经纬度
+var target = new THREE.Vector3();
+// 			//lon是x的偏移(纬度)
+// 			//lat是y的偏移(经度)
+// 			//onPointerDownPointerX, onPointerDownPointerY是mousedown的时候的坐标
+// 			// onPointerDownLon,onPointerDownLat 是mousedown的时候的经纬度
 
 			init();
 			animate();
@@ -18,40 +60,39 @@ var camera, scene, renderer;
 			function init() {
 
 				var container, mesh;
-
-				container = document.getElementById( 'container' );
-				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 10, 1100 );
-
-
-				scene = new THREE.Scene();
-
-				mesh = new THREE.Mesh( new THREE.SphereGeometry( 300, 32, 32), loadTexture('static/textures/full_view.jpg') );
-				mesh.scale.x = -1;
-
-				scene.add( mesh );
-				var light = new THREE.AmbientLight(0xffffff);
-				scene.add( light );
-
-
-				// camera.position = new THREE.Vector3(0,0,0)
-				// camera.lookAt(new THREE.Vector3(1,1,1))
-
-				// for ( var i = 0, l = mesh.geometry.vertices.length; i < l; i ++ ) {
-
-				// 	var vertex = mesh.geometry.vertices[ i ];
-
-				// 	vertex.normalize();
-				// 	vertex.multiplyScalar( 550 );
-
-				// }
-
+				container = document.getElementById( 'container' )
 				renderer = new THREE.WebGLRenderer();
-				// console.log(window.devicePixelRatio)
-				renderer.setPixelRatio( window.devicePixelRatio );
+				// renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				container.appendChild( renderer.domElement );
 
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth/window.innerHeight, 1, 110 );
+				camera.position.set(0,0,0)
+				scene = new THREE.Scene();
+				scene.add(camera)
+
+				const texture = new THREE.ImageUtils.loadTexture('static/textures/full_view.jpg', {}, ()=>{
+					renderer.render(scene, camera)
+				})
+				texture.mapping = THREE.SphericalReflectionMapping
+
+				const material = new THREE.MeshBasicMaterial({map: texture})
+
+				// 0xff0000
+				// material.color = new THREE.Color()
+
+				mesh = new THREE.Mesh( new THREE.SphereGeometry(100, 32, 32), material );
+				mesh.position.set(0,0,0)
+				camera.lookAt(mesh.position)
+				mesh.scale.x = -1;
+
+				scene.add( mesh );
 				renderer.render( scene, camera );
+// 				var light = new THREE.AmbientLight(0xffffff);
+// 				scene.add( light );
+
+
+
 
 				document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
@@ -61,28 +102,30 @@ var camera, scene, renderer;
 				document.addEventListener( 'touchstart', onDocumentTouchStart, false );
 				document.addEventListener( 'touchmove', onDocumentTouchMove, false );
 
-				//
+// 				//
 
-        drawAxes(scene);
-				// window.addEventListener( 'resize', onWindowResize, false );
+//         drawAxes(scene);
+// 				// window.addEventListener( 'resize', onWindowResize, false );
 
 
 			}
 
-			// function onWindowResize() {
+// 			// function onWindowResize() {
 
-			// 	camera.aspect = window.innerWidth / window.innerHeight;
-			// 	camera.updateProjectionMatrix();
+// 			// 	camera.aspect = window.innerWidth / window.innerHeight;
+// 			// 	camera.updateProjectionMatrix();
 
-			// 	renderer.setSize( window.innerWidth, window.innerHeight );
+// 			// 	renderer.setSize( window.innerWidth, window.innerHeight );
 
-			// }
+// 			// }
 
 			function loadTexture( path ) {
 
         // var texture = new THREE.Texture( texture_placeholder );
         var texture = new THREE.ImageUtils.loadTexture(path)
-        var material = new THREE.MeshBasicMaterial( { map: texture } );
+        var material = new THREE.MeshBasicMaterial( { map: texture },()=>{
+					renderer.render(scene, camera)
+				} );
 
 				return material;
 
@@ -102,10 +145,10 @@ var camera, scene, renderer;
 
 			}
 
-			// onPointerDownPointerX，onPointerDownPointerY  鼠标点击的位置
-			// lon = 90, onMouseDownLon = 0,
-			// lat = 0, onMouseDownLat = 0,
-			// phi = 0, theta = 0,
+// 			// onPointerDownPointerX，onPointerDownPointerY  鼠标点击的位置
+// 			// lon = 90, onMouseDownLon = 0,
+// 			// lat = 0, onMouseDownLat = 0,
+// 			// phi = 0, theta = 0,
 
 			function onDocumentMouseMove( event ) {
 
@@ -160,13 +203,11 @@ var camera, scene, renderer;
 			}
 
 			function animate() {
-				// console.log(1)
 				requestAnimationFrame( animate );
 				update();
-
 			}
 
-			function update() {
+			function update(){
 
 				if ( isUserInteracting === false ) {
 
@@ -179,60 +220,59 @@ var camera, scene, renderer;
 				// lat = 0, onMouseDownLat = 0,
 				// phi = 0, theta = 0,
 
-
 				lat = Math.max( - 85, Math.min( 85, lat ) );
 				phi = THREE.Math.degToRad( 90 - lat );
-				theta = THREE.Math.degToRad( lon );//就是lon转成弧度
+				theta = THREE.Math.degToRad( lon );
 
 				// target.x = 500 * Math.sin( phi ) * Math.cos( theta );
 				// target.y = 500 * Math.cos( phi );
 				// target.z = 500 * Math.sin( phi ) * Math.sin( theta );
-				target.x = 500 * Math.cos(theta)
-				target.y = 500 * Math.cos(phi)
-				target.z = 500 * Math.sin( theta )
+
+
+				//lon经度  lat纬度
+				//lat纬度， phi纬度的余角， theta经度
+				target.x = 1 * Math.cos(theta)
+				target.y = 1 * Math.cos(phi)
+				target.z = 1 * Math.sin( theta )
         //将target的向量给camera，然后让camera反向
 				// camera.position.copy( target ).negate();
         // camera.position.copy( target )
-        camera.position = new THREE.Vector3(0,0,0)
+				camera.position.set(0, 0, 0)
 				camera.lookAt( target )
-
-
-        // camera.lookAt(new THREE.Vector3(0,0,0))
-
 				renderer.render( scene, camera );
 
       }
 
-      function drawAxes(scene) {
-        // x-axis
-        var xGeo = new THREE.Geometry();
-        xGeo.vertices.push(new THREE.Vector3(0, 0, 0));
-        xGeo.vertices.push(new THREE.Vector3(3000, 0, 0));
-        var xMat = new THREE.LineBasicMaterial({
-            color: 0xff0000
-        });
-        var xAxis = new THREE.Line(xGeo, xMat);
-        scene.add(xAxis);
+//       function drawAxes(scene) {
+//         // x-axis
+//         var xGeo = new THREE.Geometry();
+//         xGeo.vertices.push(new THREE.Vector3(0, 0, 0));
+//         xGeo.vertices.push(new THREE.Vector3(3000, 0, 0));
+//         var xMat = new THREE.LineBasicMaterial({
+//             color: 0xff0000
+//         });
+//         var xAxis = new THREE.Line(xGeo, xMat);
+//         scene.add(xAxis);
 
-        // y-axis
-        var yGeo = new THREE.Geometry();
-        yGeo.vertices.push(new THREE.Vector3(0, 0, 0));
-        yGeo.vertices.push(new THREE.Vector3(0, 3000, 0));
-        var yMat = new THREE.LineBasicMaterial({
-            // color: 0x00ff00
-            color: 0xff0000
-        });
-        var yAxis = new THREE.Line(yGeo, yMat);
-        scene.add(yAxis);
+//         // y-axis
+//         var yGeo = new THREE.Geometry();
+//         yGeo.vertices.push(new THREE.Vector3(0, 0, 0));
+//         yGeo.vertices.push(new THREE.Vector3(0, 3000, 0));
+//         var yMat = new THREE.LineBasicMaterial({
+//             // color: 0x00ff00
+//             color: 0xff0000
+//         });
+//         var yAxis = new THREE.Line(yGeo, yMat);
+//         scene.add(yAxis);
 
-        // z-axis
-        var zGeo = new THREE.Geometry();
-        zGeo.vertices.push(new THREE.Vector3(0, 0, 0));
-        zGeo.vertices.push(new THREE.Vector3(0, 0, 3000));
-        var zMat = new THREE.LineBasicMaterial({
-            // color: 0x00ccff
-            color: 0xff0000
-        });
-        var zAxis = new THREE.Line(zGeo, zMat);
-        scene.add(zAxis);
-    }
+//         // z-axis
+//         var zGeo = new THREE.Geometry();
+//         zGeo.vertices.push(new THREE.Vector3(0, 0, 0));
+//         zGeo.vertices.push(new THREE.Vector3(0, 0, 3000));
+//         var zMat = new THREE.LineBasicMaterial({
+//             // color: 0x00ccff
+//             color: 0xff0000
+//         });
+//         var zAxis = new THREE.Line(zGeo, zMat);
+//         scene.add(zAxis);
+//     }
